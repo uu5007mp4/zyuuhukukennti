@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL一覧の重複削除と表示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL一覧の重複削除と表示</h1>
+    <textarea id="urlList" rows="10" cols="50"></textarea><br>
+    <button onclick="checkDuplicates()">重複を表示</button>
+    <button onclick="removeDuplicates()">重複を削除して保存</button>
+    <h2>重複しているURL</h2>
+    <ul id="duplicateUrls"></ul>
+
+    <script>
+        function removeDuplicates() {
+            const urlListElement = document.getElementById("urlList");
+            const urlList = urlListElement.value;
+            const uniqueUrls = removeDuplicatesFromArray(urlList.split("\n").map(url => url.trim()).filter(url => url !== ""));
+            const uniqueUrlList = uniqueUrls.join("\n");
+            urlListElement.value = uniqueUrlList;
+
+            // ダウンロードリンクの生成
+            const blob = new Blob([uniqueUrlList], { type: "text/plain" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "unique_urls.txt";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function removeDuplicatesFromArray(arr) {
+            return arr.filter((item, index) => arr.indexOf(item) === index);
+        }
+
+        function checkDuplicates() {
+            const urlList = document.getElementById("urlList").value;
+            const urls = urlList.split("\n").map(url => url.trim()).filter(url => url !== "");
+            const duplicates = findDuplicates(urls);
+            displayDuplicates(duplicates);
+        }
+
+        function findDuplicates(urls) {
+            const seen = {};
+            const duplicates = [];
+
+            urls.forEach(url => {
+                if (seen[url]) {
+                    if (duplicates.indexOf(url) === -1) {
+                        duplicates.push(url);
+                    }
+                } else {
+                    seen[url] = true;
+                }
+            });
+
+            return duplicates;
+        }
+
+        function displayDuplicates(duplicates) {
+            const duplicateUrlsElement = document.getElementById("duplicateUrls");
+            duplicateUrlsElement.innerHTML = "";
+
+            duplicates.forEach(url => {
+                const li = document.createElement("li");
+                li.textContent = url;
+                duplicateUrlsElement.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
