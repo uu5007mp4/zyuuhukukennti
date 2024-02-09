@@ -1,0 +1,2 @@
+# zyuuhukukennti
+重複を検知してくれてtxtで保存もできるサイト
